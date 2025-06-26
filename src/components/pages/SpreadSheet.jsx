@@ -3,94 +3,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, Upload, Plus, Trash2, RotateCcw, X, Edit3, Check, FileSpreadsheet, FileText, Sparkles, Loader2, Bot } from 'lucide-react';
+import { Download, Upload, Plus, Trash2, RotateCcw, X, Edit3, Check, FileText, Sparkles, Loader2, Bot, Grid3X3, Palette } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { Chatbot } from './Chatbot';
 
-// Simple Chatbot component for demo purposes
-const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
-  const [message, setMessage] = useState('');
-  const [responses, setResponses] = useState([]);
-
-  const handleSend = async () => {
-    if (!message.trim() || isLoading) return;
-    
-    const userMessage = message;
-    setMessage('');
-    setResponses(prev => [...prev, { type: 'user', content: userMessage }]);
-    
-    try {
-      const response = await onSendMessage(userMessage);
-      setResponses(prev => [...prev, { type: 'ai', content: response }]);
-    } catch (error) {
-      setResponses(prev => [...prev, { type: 'error', content: 'Error processing request' }]);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl h-[600px] flex flex-col mx-4 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-violet-500 to-purple-600 rounded-t-2xl">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-lg">
-              <Bot className="w-5 h-5 text-white" />
-            </div>
-            <h3 className="text-lg font-semibold text-white">AI Assistant</h3>
-          </div>
-          <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20">
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {responses.map((response, index) => (
-            <div key={index} className={`flex ${response.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[80%] p-3 rounded-2xl ${
-                response.type === 'user' 
-                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' 
-                  : response.type === 'error'
-                  ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-              }`}>
-                <p className="text-sm whitespace-pre-wrap">{response.content}</p>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl border border-slate-200 dark:border-slate-700">
-                <Loader2 className="w-4 h-4 animate-spin text-slate-600 dark:text-slate-400" />
-              </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="p-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="flex gap-2">
-            <Input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-              placeholder="Ask about your spreadsheet data..."
-              className="flex-1 border-slate-300 dark:border-slate-600 focus:border-violet-500 focus:ring-violet-500"
-              disabled={isLoading}
-            />
-            <Button 
-              onClick={handleSend} 
-              disabled={!message.trim() || isLoading}
-              className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg"
-            >
-              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Send'}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+/**
+ * JSDoc type definitions to replace TypeScript interfaces
+ * @typedef {Object.<string, any>} CellData
+ * @typedef {Object.<number, CellData>} SpreadsheetData
+ * @typedef {{id: string, name: string, data: SpreadsheetData, columns: string[], rows: number}} Sheet
+ * @typedef {{sheets: Sheet[], activeSheetId: string}} WorkbookData
+ */
 
 const SpreadSheet = () => {
-  // Convert number to Excel column name (A, B, C... Z, AA, AB... ZZ, AAA...)
-  // Examples: 1→A, 26→Z, 27→AA, 52→AZ, 53→BA, 702→ZZ, 703→AAA
+  /**
+   * Convert number to Excel column name (A, B, C... Z, AA, AB... ZZ, AAA...)
+   * Examples: 1→A, 26→Z, 27→AA, 52→AZ, 53→BA, 702→ZZ, 703→AAA
+   * @param {number} num The number to convert.
+   * @returns {string} The Excel column name.
+   */
   const numberToColumnName = (num) => {
     let result = '';
     while (num > 0) {
@@ -101,29 +32,28 @@ const SpreadSheet = () => {
     return result;
   };
 
+  /** @type {[WorkbookData, React.Dispatch<React.SetStateAction<WorkbookData>>]} */
   const [workbook, setWorkbook] = useState(() => {
-    const initialColumns = Array.from({ length: 8 }, (_, i) => numberToColumnName(i + 1));
+    const initialColumns = Array.from({ length: 5 }, (_, i) => numberToColumnName(i + 1));
     return {
       sheets: [{
         id: 'sheet1',
         name: 'Sheet1',
         data: {},
         columns: initialColumns,
-        rows: 15
+        rows: 10
       }],
       activeSheetId: 'sheet1'
     };
   });
   
   const [selectedCell, setSelectedCell] = useState(null);
-  const [hoveredCell, setHoveredCell] = useState(null);
   const [fileName, setFileName] = useState('spreadsheet');
   const [alert, setAlert] = useState(null);
   const [editingSheetId, setEditingSheetId] = useState(null);
   const [tempSheetName, setTempSheetName] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
   const fileInputRef = useRef(null);
-
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   const getCurrentSheet = useCallback(() => {
@@ -141,6 +71,12 @@ const SpreadSheet = () => {
     }));
   }, []);
 
+  /**
+   * Initialize empty data structure for a sheet
+   * @param {string[]} columns - Array of column names.
+   * @param {number} rows - Number of rows.
+   * @returns {SpreadsheetData}
+   */
   const initializeSheetData = useCallback((columns, rows) => {
     const newData = {};
     for (let r = 0; r < rows; r++) {
@@ -195,6 +131,7 @@ const SpreadSheet = () => {
         newData[r][nextColumnName] = '';
       }
     }
+    
     updateCurrentSheet({ columns: newColumns, data: newData });
   };
 
@@ -219,6 +156,7 @@ const SpreadSheet = () => {
           delete newData[parseInt(rowKey)][lastCol];
         }
       });
+      
       updateCurrentSheet({ columns: newColumns, data: newData });
     }
   };
@@ -227,7 +165,7 @@ const SpreadSheet = () => {
     const currentSheet = getCurrentSheet();
     const newData = initializeSheetData(currentSheet.columns, currentSheet.rows);
     updateCurrentSheet({ data: newData });
-    setAlert({ type: 'success', message: 'Sheet cleared successfully!' });
+    setAlert({ type: 'success', message: '✨ Sheet cleared successfully!' });
     setTimeout(() => setAlert(null), 3000);
   };
 
@@ -261,16 +199,21 @@ const SpreadSheet = () => {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
-      setAlert({ type: 'success', message: 'Data exported to output.json successfully!' });
+      setAlert({ type: 'success', message: '🎉 Data exported to output.json successfully!' });
     } catch (error) {
-      setAlert({ type: 'error', message: 'Error exporting data to JSON file!' });
+      setAlert({ type: 'error', message: '❌ Error exporting data to JSON file!' });
     }
     setTimeout(() => setAlert(null), 3000);
   };
-  
+
+  /**
+   * Sends a prompt and the current sheet data to the AI for processing.
+   * @param {string} prompt The user's prompt for the AI.
+   * @returns {Promise<string>} A promise that resolves with the AI's response text.
+   */
   const handleAiProcessing = async (prompt) => {
     setIsAiLoading(true);
-    setAlert(null);
+    setAlert(null); // Clear previous alerts
 
     try {
       const sheetJsonData = getCurrentSheetAsJson();
@@ -298,9 +241,13 @@ const SpreadSheet = () => {
       if (!responseText) {
         throw new Error("Received an empty response from the AI.");
       }
-      return responseText;
+
+      console.log("Received from AI API:", responseText);
+      return responseText; // Return the response text to the caller (the chatbot)
+
     } catch (error) {
       console.error('AI Processing Error:', error);
+      // Re-throw the error so the calling component (Chatbot) can handle it
       throw new Error(error.message || 'An unknown error occurred during AI processing.');
     } finally {
       setIsAiLoading(false);
@@ -309,13 +256,13 @@ const SpreadSheet = () => {
 
   const addSheet = () => {
     const newSheetNumber = workbook.sheets.length + 1;
-    const initialColumns = Array.from({ length: 8 }, (_, i) => numberToColumnName(i + 1));
+    const initialColumns = Array.from({ length: 5 }, (_, i) => numberToColumnName(i + 1));
     const newSheet = {
       id: `sheet${Date.now()}`,
       name: `Sheet${newSheetNumber}`,
-      data: initializeSheetData(initialColumns, 15),
+      data: initializeSheetData(initialColumns, 10),
       columns: initialColumns,
-      rows: 15
+      rows: 10
     };
     
     setWorkbook(prev => ({
@@ -327,7 +274,7 @@ const SpreadSheet = () => {
 
   const deleteSheet = (sheetId) => {
     if (workbook.sheets.length === 1) {
-      setAlert({ type: 'error', message: 'Cannot delete the last sheet!' });
+      setAlert({ type: 'error', message: '❌ Cannot delete the last sheet!' });
       setTimeout(() => setAlert(null), 3000);
       return;
     }
@@ -399,11 +346,12 @@ const SpreadSheet = () => {
       
       XLSX.writeFile(wb, `${fileName}.xlsx`);
       
-      setAlert({ type: 'success', message: 'Excel file exported successfully!' });
+      setAlert({ type: 'success', message: '🎉 Excel file exported successfully!' });
+      setTimeout(() => setAlert(null), 3000);
     } catch (error) {
-      setAlert({ type: 'error', message: 'Error exporting Excel file!' });
+      setAlert({ type: 'error', message: '❌ Error exporting Excel file!' });
+      setTimeout(() => setAlert(null), 3000);
     }
-    setTimeout(() => setAlert(null), 3000);
   };
 
   const importFromExcel = (event) => {
@@ -414,17 +362,20 @@ const SpreadSheet = () => {
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result);
-        const wb = XLSX.read(data, { type: 'array' });
+        const workbook = XLSX.read(data, { type: 'array' });
         
         const newSheets = [];
         
-        wb.SheetNames.forEach((sheetName, index) => {
-          const ws = wb.Sheets[sheetName];
+        workbook.SheetNames.forEach((sheetName, index) => {
+          const ws = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 });
           
           if (jsonData.length > 0) {
-            const maxCols = Math.max(...jsonData.map(row => row.length), 1);
-            const importedColumns = Array.from({ length: maxCols }, (_, i) => numberToColumnName(i + 1));
+            const maxCols = Math.max(...jsonData.map(row => row.length));
+            const importedColumns = Array.from({ length: Math.max(maxCols, 1) }, (_, i) => 
+              numberToColumnName(i + 1)
+            );
+            
             const importedRows = Math.max(jsonData.length, 1);
             
             const sheetData = {};
@@ -452,12 +403,12 @@ const SpreadSheet = () => {
             activeSheetId: newSheets[0].id
           });
           setFileName(file.name.replace(/\.[^/.]+$/, ""));
-          setAlert({ type: 'success', message: `Excel file imported successfully with ${newSheets.length} sheet(s)!` });
+          setAlert({ type: 'success', message: `🎉 Excel file imported successfully with ${newSheets.length} sheet(s)!` });
         } else {
-          setAlert({ type: 'error', message: 'No data found in Excel file!' });
+          setAlert({ type: 'error', message: '❌ No data found in Excel file!' });
         }
       } catch (error) {
-        setAlert({ type: 'error', message: 'Error reading Excel file!' });
+        setAlert({ type: 'error', message: '❌ Error reading Excel file!' });
       }
       setTimeout(() => setAlert(null), 3000);
     };
@@ -472,236 +423,248 @@ const SpreadSheet = () => {
   const currentSheet = getCurrentSheet();
 
   return (
-    <div className="w-full  px-4 mx-auto my-8">
-      <Card className="border-0 shadow-2xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-2xl shadow-lg">
-              <FileSpreadsheet className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold text-white drop-shadow-sm">Sheet Genius SHIVIK</CardTitle>
-          </div>
-          <Button 
-            onClick={() => setIsChatOpen(true)} 
-            className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 rounded-xl px-6 py-3"
-          >
-            <Sparkles className="w-5 h-5" />
-            Ask AI
-          </Button>
-        </CardHeader>
+    <div className="w-full px-4 mx-auto min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+      {/* Header with gradient background */}
+      <div className="my-4">
+        <div className="text-center ">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+            ✨ SHIVIK AI Spreadsheet
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">
+            Create, edit, and analyze your data with AI assistance
+          </p>
+        </div>
+      </div>
 
-        <CardContent className="space-y-6 p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <Card className="shadow-2xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+        <CardContent className="space-y-6 pt-8">
           {alert && (
-            <Alert className={`rounded-xl border-0 shadow-lg ${
+            <Alert className={`${
               alert.type === 'error' 
-                ? 'bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 text-red-700 dark:text-red-300' 
-                : 'bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 text-emerald-700 dark:text-emerald-300'
-            }`}>
+                ? 'border-red-300 bg-gradient-to-r from-red-50 to-pink-50 text-red-800 dark:from-red-900/30 dark:to-pink-900/30 dark:text-red-200' 
+                : 'border-green-300 bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 dark:from-green-900/30 dark:to-emerald-900/30 dark:text-green-200'
+            } shadow-lg border-2`}>
               <AlertDescription className="font-medium">{alert.message}</AlertDescription>
             </Alert>
           )}
 
-          {isChatOpen && (
-            <Chatbot 
-              onSendMessage={handleAiProcessing}
-              isLoading={isAiLoading}
-              onClose={() => setIsChatOpen(false)}
-            />
-          )}
+          {/* Enhanced toolbar with gradients */}
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 p-6 rounded-2xl border border-gray-200 dark:border-gray-600 shadow-inner">
+            <div className="flex flex-wrap gap-3 items-center">
+              {/* File operations section */}
+              <div className="flex flex-wrap gap-2 items-center p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-blue-500" />
+                  <Input
+                    placeholder="File name"
+                    value={fileName}
+                    onChange={(e) => setFileName(e.target.value)}
+                    className="w-48 border-blue-200 focus:border-blue-400 dark:border-blue-700"
+                  />
+                </div>
+                
+                <Button 
+                  onClick={exportToExcel} 
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Excel
+                </Button>
 
-          <div className="flex flex-wrap gap-3 items-center p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
-            <Input
-              placeholder="File name"
-              value={fileName}
-              onChange={(e) => setFileName(e.target.value)}
-              className="w-48 h-10 border-slate-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500 rounded-xl bg-slate-50 dark:bg-slate-700"
-            />
-            <Button 
-              onClick={exportToExcel} 
-              className="flex items-center gap-2 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 rounded-xl"
-            >
-              <Download className="w-4 h-4" />Export (.xlsx)
-            </Button>
-            <Button 
-              onClick={exportDataToJson} 
-              className="flex items-center gap-2 h-10 border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 rounded-xl" 
-              variant="outline"
-            >
-              <FileText className="w-4 h-4" />Export (.json)
-            </Button>
-            <Button 
-              onClick={() => fileInputRef.current?.click()} 
-              variant="outline" 
-              className="flex items-center gap-2 h-10 border-2 border-slate-300 dark:border-slate-600 hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 rounded-xl"
-            >
-              <Upload className="w-4 h-4" />Import (.xlsx)
-            </Button>
-            <input ref={fileInputRef} type="file" accept=".xlsx,.xls" onChange={importFromExcel} className="hidden" />
+                <Button 
+                  onClick={exportDataToJson} 
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Export JSON
+                </Button>
+              </div>
 
-            <div className="border-l-2 border-slate-300 dark:border-slate-700 pl-3 ml-3 flex gap-2">
-              <Button 
-                onClick={addRow} 
-                size="sm" 
-                variant="outline" 
-                className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-              >
-                <Plus className="w-4 h-4 mr-1" />Row
-              </Button>
-              <Button 
-                onClick={addColumn} 
-                size="sm" 
-                variant="outline" 
-                className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
-              >
-                <Plus className="w-4 h-4 mr-1" />Column
-              </Button>
-              <Button 
-                onClick={removeRow} 
-                size="sm" 
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />Row
-              </Button>
-              <Button 
-                onClick={removeColumn} 
-                size="sm" 
-                variant="outline" 
-                className="border-amber-300 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />Column
-              </Button>
-              <Button 
-                onClick={clearData} 
-                size="sm" 
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-md hover:shadow-lg transition-all duration-200 rounded-lg"
-              >
-                <RotateCcw className="w-4 h-4 mr-1" />Clear Sheet
-              </Button>
+              {/* AI section */}
+              <div className="flex gap-2 items-center p-3 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-xl shadow-sm border border-purple-200 dark:border-purple-700">
+                <Button 
+                  onClick={() => setIsChatOpen(true)} 
+                  className="bg-gradient-to-r from-purple-500 via-violet-500 to-pink-500 hover:from-purple-600 hover:via-violet-600 hover:to-pink-600 text-white shadow-lg"
+                >
+                  <Bot className="w-4 h-4 mr-2" />
+                  AI Chat
+                  {isAiLoading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                </Button>
+                {isChatOpen && (
+                  <Chatbot 
+                    onSendMessage={handleAiProcessing}
+                    isLoading={isAiLoading}
+                    onClose={() => setIsChatOpen(false)}
+                  />
+                )}
+              </div>
+
+              {/* Import section */}
+              <div className="flex gap-2 items-center p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600">
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white shadow-lg"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import Excel
+                </Button>
+                
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={importFromExcel}
+                  className="hidden"
+                />
+              </div>
+              
+              {/* Edit operations */}
+              <div className="flex gap-2 items-center p-3 bg-gradient-to-r from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-xl shadow-sm border border-indigo-200 dark:border-indigo-700">
+                <div className="flex items-center gap-1">
+                  <Grid3X3 className="w-4 h-4 text-indigo-600 mr-1" />
+                  <span className="text-sm font-medium text-indigo-700 dark:text-indigo-300 mr-2">Edit:</span>
+                </div>
+                <Button onClick={addRow} size="sm" className="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white">
+                  <Plus className="w-3 h-3 mr-1" />Row
+                </Button>
+                <Button onClick={addColumn} size="sm" className="bg-gradient-to-r from-blue-400 to-sky-500 hover:from-blue-500 hover:to-sky-600 text-white">
+                  <Plus className="w-3 h-3 mr-1" />Column
+                </Button>
+                <Button onClick={removeRow} size="sm" className="bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white">
+                  <Trash2 className="w-3 h-3 mr-1" />Row
+                </Button>
+                <Button onClick={removeColumn} size="sm" className="bg-gradient-to-r from-pink-400 to-rose-500 hover:from-pink-500 hover:to-rose-600 text-white">
+                  <Trash2 className="w-3 h-3 mr-1" />Column
+                </Button>
+                <Button onClick={clearData} size="sm" className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white">
+                  <RotateCcw className="w-3 h-3 mr-1" />Clear
+                </Button>
+              </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="flex items-center border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
-              <div className="flex-1 flex items-end gap-1 overflow-x-auto p-2">
-                {workbook.sheets.map((sheet) => (
-                  <div
-                    key={sheet.id}
-                    className={`group relative flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-t-xl cursor-pointer transition-all duration-200 ${
-                      sheet.id === workbook.activeSheetId
-                        ? 'bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 shadow-lg border-t-2 border-l-2 border-r-2 border-blue-500 -mb-px'
-                        : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-600 shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
-                    }`}
-                  >
-                    {editingSheetId === sheet.id ? (
-                      <div className="flex items-center gap-2">
-                        <Input 
-                          value={tempSheetName} 
-                          onChange={(e) => setTempSheetName(e.target.value)} 
-                          onKeyDown={(e) => { 
-                            if (e.key === 'Enter') saveSheetName(); 
-                            if (e.key === 'Escape') cancelEditingSheetName(); 
-                          }} 
-                          onBlur={saveSheetName} 
-                          className="h-7 w-28 text-xs border-blue-300 focus:border-blue-500 rounded-lg" 
-                          autoFocus 
-                        />
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          onClick={saveSheetName} 
-                          className="h-6 w-6 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-lg"
+          {/* Enhanced sheet tabs */}
+          <div className="flex items-center gap-1 border-b-2 border-gray-200 dark:border-gray-700">
+            <div className="flex gap-1 overflow-x-auto flex-1">
+              {workbook.sheets.map((sheet, index) => (
+                <div
+                  key={sheet.id}
+                  className={`group flex items-center gap-1 px-4 py-3 text-sm border-t-2 border-l border-r rounded-t-lg cursor-pointer transition-all duration-200 ${
+                    sheet.id === workbook.activeSheetId
+                      ? 'bg-gradient-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-blue-500 border-b-white dark:border-b-gray-800 -mb-0.5 shadow-lg text-blue-700 dark:text-blue-300'
+                      : 'bg-gradient-to-b from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 border-gray-300 dark:border-gray-600 hover:bg-gradient-to-b hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-900/50 dark:hover:to-blue-800/50 hover:border-blue-300'
+                  }`}
+                  style={{
+                    background: sheet.id === workbook.activeSheetId 
+                      ? `linear-gradient(135deg, ${index % 2 === 0 ? '#dbeafe, #bfdbfe' : '#fce7f3, #fbcfe8'})` 
+                      : undefined
+                  }}
+                >
+                  {editingSheetId === sheet.id ? (
+                    <div className="flex items-center gap-1">
+                      <Input
+                        value={tempSheetName}
+                        onChange={(e) => setTempSheetName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveSheetName();
+                          if (e.key === 'Escape') cancelEditingSheetName();
+                        }}
+                        onBlur={saveSheetName}
+                        className="h-6 w-24 text-xs border-blue-300 focus:border-blue-500"
+                        autoFocus
+                      />
+                      <Button size="icon" variant="ghost" onClick={saveSheetName} className="h-5 w-5 hover:bg-green-100">
+                        <Check className="w-3 h-3 text-green-600" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <span
+                        onClick={() => switchToSheet(sheet.id)}
+                        className="select-none font-medium flex items-center gap-1"
+                      >
+                        <Palette className="w-3 h-3 opacity-60" />
+                        {sheet.name}
+                      </span>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => startEditingSheetName(sheet.id, sheet.name)}
+                        className="h-5 w-5 p-0 opacity-0 group-hover:opacity-100 hover:bg-blue-100"
+                      >
+                        <Edit3 className="w-3 h-3 text-blue-600" />
+                      </Button>
+                      {workbook.sheets.length > 1 && (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => deleteSheet(sheet.id)}
+                          className="h-5 w-5 p-0 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-100"
                         >
-                          <Check className="w-3 h-3 text-green-600" />
+                          <X className="w-3 h-3" />
                         </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <span onClick={() => switchToSheet(sheet.id)} className="select-none font-medium">
-                          {sheet.name}
-                        </span>
-                        <Button 
-                          size="icon" 
-                          variant="ghost" 
-                          onClick={() => startEditingSheetName(sheet.id, sheet.name)} 
-                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg"
-                        >
-                          <Edit3 className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                        </Button>
-                        {workbook.sheets.length > 1 && (
-                          <Button 
-                            size="icon" 
-                            variant="ghost" 
-                            onClick={() => deleteSheet(sheet.id)} 
-                            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg"
-                          >
-                            <X className="w-3 h-3 text-red-600 dark:text-red-400" />
-                          </Button>
-                        )}
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <Button 
-                onClick={addSheet} 
-                size="sm" 
-                variant="ghost" 
-                className="flex items-center gap-2 text-xs h-10 px-4 mx-3 hover:bg-green-100 dark:hover:bg-green-900/30 text-green-600 dark:text-green-400 border border-green-300 dark:border-green-700 rounded-xl transition-all duration-200"
-              >
-                <Plus className="w-4 h-4" />New Sheet
-              </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
+            <Button
+              onClick={addSheet}
+              size="sm"
+              className="flex items-center gap-1 text-xs bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg"
+            >
+              <Plus className="w-3 h-3" />
+              Add Sheet
+            </Button>
+          </div>
 
-            <div className="border-0 rounded-b-2xl overflow-auto max-h-[60vh] relative bg-white dark:bg-slate-800">
-              <table className="w-full border-collapse table-fixed">
-                <thead className="sticky top-0 z-20 bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 dark:from-slate-700 dark:via-slate-800 dark:to-slate-700 backdrop-blur-sm">
+          {/* Enhanced spreadsheet table */}
+          <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-xl bg-white dark:bg-gray-900">
+            <div className="overflow-auto max-h-96">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 z-10">
                   <tr>
-                    <th className="w-16 h-10 border-b-2 border-r-2 border-slate-300 dark:border-slate-600 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 text-xs font-bold sticky left-0 z-10 text-slate-600 dark:text-slate-300"></th>
-                    {currentSheet.columns.map((col) => (
-                      <th 
-                        key={col} 
-                        className={`min-w-24 h-10 px-3 border-b-2 border-r border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-600 dark:text-slate-300 transition-all duration-200 ${
-                          (hoveredCell?.col === col) && 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                        }`}
+                    <th className="w-12 h-10 border border-gray-300 dark:border-gray-600 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300"></th>
+                    {currentSheet.columns.map((col, index) => (
+                      <th
+                        key={col}
+                        className="min-w-24 h-10 border border-gray-300 dark:border-gray-600 text-xs font-bold px-3 text-gray-700 dark:text-gray-300"
+                        style={{
+                          background: `linear-gradient(135deg, ${
+                            index % 4 === 0 ? '#dbeafe, #bfdbfe' :
+                            index % 4 === 1 ? '#fce7f3, #fbcfe8' :
+                            index % 4 === 2 ? '#d1fae5, #a7f3d0' :
+                            '#fef3c7, #fde68a'
+                          })`
+                        }}
                       >
                         {col}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody onMouseLeave={() => setHoveredCell(null)}>
+                <tbody>
                   {Array.from({ length: currentSheet.rows }, (_, rowIndex) => (
-                    <tr key={rowIndex} className="transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                      <td className={`w-16 px-2 h-10 border-r-2 border-b border-slate-300 dark:border-slate-600 bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 text-center sticky left-0 z-10 transition-all duration-200 ${
-                        (hoveredCell?.row === rowIndex) && 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                      }`}>
+                    <tr key={rowIndex} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-colors">
+                      <td className="w-12 px-2 h-10 border border-gray-300 dark:border-gray-600 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 text-xs font-bold text-center text-gray-700 dark:text-gray-300">
                         {rowIndex + 1}
                       </td>
-                      {currentSheet.columns.map((col) => {
+                      {currentSheet.columns.map((col, colIndex) => {
                         const cellKey = `${rowIndex}-${col}`;
-                        const isSelected = selectedCell === cellKey;
-                        const isHovered = hoveredCell?.row === rowIndex || hoveredCell?.col === col;
                         return (
-                          <td 
-                            key={cellKey} 
-                            onMouseEnter={() => setHoveredCell({ row: rowIndex, col: col })} 
-                            className={`border-b border-r border-slate-200 dark:border-slate-600 p-0 relative transition-all duration-200 ${
-                              isSelected 
-                                ? 'ring-2 ring-blue-500 ring-inset z-10 bg-blue-50 dark:bg-blue-900/20' 
-                                : ''
-                            } ${
-                              !isSelected && isHovered 
-                                ? 'bg-slate-100 dark:bg-slate-700/50' 
-                                : ''
-                            }`}
-                          >
+                          <td key={cellKey} className="border border-gray-300 dark:border-gray-600 p-0">
                             <input
                               type="text"
                               value={getCellValue(rowIndex, col)}
                               onChange={(e) => handleCellChange(rowIndex, col, e.target.value)}
                               onFocus={() => setSelectedCell(cellKey)}
-                              className="w-full h-full px-3 py-2 text-sm bg-transparent outline-none focus:ring-0 focus:bg-white dark:focus:bg-slate-800 transition-colors duration-200"
+                              onBlur={() => setSelectedCell(null)}
+                              className={`w-full h-10 px-3 text-sm border-none outline-none bg-transparent transition-all duration-200 ${
+                                selectedCell === cellKey 
+                                  ? 'bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/50 dark:via-purple-900/50 dark:to-pink-900/50 shadow-inner' 
+                                  : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                              }`}
                             />
                           </td>
                         );
@@ -713,15 +676,26 @@ const SpreadSheet = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 rounded-2xl border border-slate-200 dark:border-slate-600">
-            <div className="text-sm text-slate-600 dark:text-slate-300">
-              <span className="font-semibold text-blue-600 dark:text-blue-400">Active Sheet:</span> {currentSheet.name}
-            </div>
-            <div className="text-sm text-slate-600 dark:text-slate-300">
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">Size:</span> {currentSheet.rows} rows × {currentSheet.columns.length} columns
-            </div>
-            <div className="text-sm text-slate-600 dark:text-slate-300">
-              <span className="font-semibold text-purple-600 dark:text-purple-400">Total Sheets:</span> {workbook.sheets.length}
+          {/* Enhanced footer with gradient background */}
+          <div className="bg-gradient-to-r from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-800 dark:via-blue-900/30 dark:to-indigo-900/30 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-inner">
+            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-purple-500"></div>
+                  <span><strong className="text-blue-700 dark:text-blue-300">Active Sheet:</strong> {currentSheet.name}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-500"></div>
+                  <span><strong className="text-green-700 dark:text-green-300">Size:</strong> {currentSheet.rows} rows × {currentSheet.columns.length} columns</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-pink-400 to-rose-500"></div>
+                  <span><strong className="text-pink-700 dark:text-pink-300">Total Sheets:</strong> {workbook.sheets.length}</span>
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 italic">
+                ✨ Click on any cell to edit • Use the colorful tabs to manage sheets • Export your data in multiple formats • Chat with AI for insights
+              </p>
             </div>
           </div>
         </CardContent>

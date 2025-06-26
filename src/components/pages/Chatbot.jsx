@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { X, Send, Sparkles, User, Bot, Loader2 } from 'lucide-react';
+import { X, Send, Sparkles, User, Bot, Loader2, MessageCircle, Brain, Zap } from 'lucide-react';
 
 export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
   const [messages, setMessages] = useState([
     {
       id: 'initial',
       role: 'ai',
-      content: "Hello! I'm your AI assistant. Ask me anything about the current sheet.",
+      content: "Hello! I'm your AI assistant. Ask me anything about the current sheet data, analysis, or insights! ✨",
     },
   ]);
   const [input, setInput] = useState('');
@@ -61,9 +61,13 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
       const language = match[1] || '';
       const code = match[2];
       parts.push(
-        <pre key={`code-${match.index}`} className="bg-gray-100 dark:bg-gray-800 p-3 rounded-md text-xs overflow-x-auto my-2">
-          {language && <div className="text-gray-500 text-xs mb-1">{language}</div>}
-          <code>{code}</code>
+        <pre key={`code-${match.index}`} className="bg-gradient-to-r from-slate-100 to-gray-100 dark:from-slate-800 dark:to-gray-800 p-4 rounded-xl text-sm overflow-x-auto my-3 border border-slate-200 dark:border-slate-700 shadow-inner">
+          {language && (
+            <div className="text-emerald-600 dark:text-emerald-400 text-xs mb-2 font-semibold bg-emerald-50 dark:bg-emerald-900/30 px-2 py-1 rounded-md inline-block">
+              {language}
+            </div>
+          )}
+          <code className="text-slate-800 dark:text-slate-200">{code}</code>
         </pre>
       );
 
@@ -96,7 +100,7 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
       if (currentParagraph.length > 0) {
         const paragraphText = currentParagraph.join('\n');
         elements.push(
-          <p key={`p-${elements.length}`} className="mb-2">
+          <p key={`p-${elements.length}`} className="mb-3 text-gray-700 dark:text-gray-300 leading-relaxed">
             {parseInlineElements(paragraphText)}
           </p>
         );
@@ -107,9 +111,12 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
     const flushList = () => {
       if (listItems.length > 0) {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="list-disc list-inside mb-2 space-y-1">
+          <ul key={`ul-${elements.length}`} className="list-none mb-3 space-y-2 pl-4">
             {listItems.map((item, idx) => (
-              <li key={idx}>{parseInlineElements(item)}</li>
+              <li key={idx} className="flex items-start gap-2">
+                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 mt-2 flex-shrink-0"></div>
+                <span className="text-gray-700 dark:text-gray-300">{parseInlineElements(item)}</span>
+              </li>
             ))}
           </ul>
         );
@@ -172,10 +179,10 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
           const level = headerMatch[1].length;
           const text = headerMatch[2];
           const HeaderTag = `h${Math.min(level, 6)}`;
-          const className = level === 1 ? 'text-xl font-bold mb-2' :
-                          level === 2 ? 'text-lg font-bold mb-2' :
-                          level === 3 ? 'text-base font-bold mb-1' :
-                          'text-sm font-semibold mb-1';
+          const className = level === 1 ? 'text-xl font-bold mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent' :
+                          level === 2 ? 'text-lg font-bold mb-3 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent' :
+                          level === 3 ? 'text-base font-bold mb-2 bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent' :
+                          'text-sm font-semibold mb-2 text-indigo-600 dark:text-indigo-400';
           
           elements.push(
             React.createElement(HeaderTag, {
@@ -244,14 +251,14 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
     const dataRows = contentRows.slice(1).map(parseTableRow);
 
     return (
-      <div key={`table-${Math.random()}`} className="overflow-x-auto mb-4">
-        <table className="w-full border-collapse border border-gray-300 dark:border-gray-600 text-sm">
+      <div key={`table-${Math.random()}`} className="overflow-x-auto mb-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
+        <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="bg-gray-50 dark:bg-gray-800">
+            <tr className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30">
               {headerRow.map((header, i) => (
                 <th 
                   key={i} 
-                  className="border border-gray-300 dark:border-gray-600 px-3 py-2 text-left font-semibold"
+                  className="border-b border-gray-200 dark:border-gray-700 px-4 py-3 text-left font-semibold text-gray-800 dark:text-gray-200"
                 >
                   {parseInlineElements(header)}
                 </th>
@@ -260,11 +267,11 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
           </thead>
           <tbody>
             {dataRows.map((row, rowIndex) => (
-              <tr key={rowIndex} className="even:bg-gray-50 dark:even:bg-gray-800/50">
+              <tr key={rowIndex} className="even:bg-gray-50 dark:even:bg-gray-800/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
                 {row.map((cell, cellIndex) => (
                   <td 
                     key={cellIndex} 
-                    className="border border-gray-300 dark:border-gray-600 px-3 py-2"
+                    className="border-b border-gray-100 dark:border-gray-800 px-4 py-3 text-gray-700 dark:text-gray-300"
                   >
                     {parseInlineElements(cell)}
                   </td>
@@ -285,7 +292,7 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
       if (part.startsWith('`') && part.endsWith('`')) {
         const codeText = part.slice(1, -1);
         return (
-          <code key={index} className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-xs">
+          <code key={index} className="bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/50 dark:to-teal-900/50 px-2 py-1 rounded-md text-sm text-emerald-800 dark:text-emerald-200 font-mono border border-emerald-200 dark:border-emerald-700">
             {codeText}
           </code>
         );
@@ -302,7 +309,7 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
     // Bold
     result = String(result).split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={`${keyPrefix}-bold-${i}`}>{part.slice(2, -2)}</strong>;
+        return <strong key={`${keyPrefix}-bold-${i}`} className="font-bold text-gray-900 dark:text-gray-100">{part.slice(2, -2)}</strong>;
       }
       return part;
     });
@@ -312,7 +319,7 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
       if (typeof part === 'string') {
         return part.split(/(\*[^*]+\*)/g).map((subPart, j) => {
           if (subPart.startsWith('*') && subPart.endsWith('*') && !subPart.startsWith('**')) {
-            return <em key={`${keyPrefix}-italic-${i}-${j}`}>{subPart.slice(1, -1)}</em>;
+            return <em key={`${keyPrefix}-italic-${i}-${j}`} className="italic text-gray-800 dark:text-gray-200">{subPart.slice(1, -1)}</em>;
           }
           return subPart;
         });
@@ -332,7 +339,7 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
                 href={linkMatch[2]} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 hover:decoration-blue-600 transition-colors"
               >
                 {linkMatch[1]}
               </a>
@@ -351,78 +358,149 @@ export const Chatbot = ({ onSendMessage, isLoading, onClose }) => {
     return <div className="markdown-content">{parseMarkdown(content)}</div>;
   };
 
+  const quickPrompts = [
+    "📊 Analyze this data",
+    "📈 Show trends",
+    "🔍 Find insights",
+    "📋 Summarize data"
+  ];
+
   return (
-    <Card className="fixed bottom-4  right-4 w-full max-w-md h-[70vh] flex flex-col z-50 shadow-2xl">
-      <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-primary" />
-          <CardTitle className="text-lg">AI Assistant</CardTitle>
-        </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
-          <X className="w-5 h-5" />
-        </Button>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div key={message.id} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''}`}>
-            {message.role !== 'user' && (
-              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-                <Bot className="w-5 h-5" />
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-2xl h-[85vh] flex flex-col shadow-2xl border-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
+        {/* Enhanced Header */}
+        <CardHeader className="p-0 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-6 text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-white/10 backdrop-blur-sm"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-white/20 rounded-full backdrop-blur-sm">
+                  <Brain className="w-6 h-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl font-bold">AI Data Assistant</CardTitle>
+                  <p className="text-sm opacity-90 mt-1">Powered by advanced AI • Ready to help analyze your data</p>
+                </div>
               </div>
-            )}
-            <div
-              className={`max-w-[80%] p-3 rounded-lg text-sm ${
-                message.role === 'user'
-                  ? 'bg-primary text-primary-foreground'
-                  : message.role === 'error'
-                  ? 'bg-destructive text-destructive-foreground'
-                  : 'bg-muted'
-              }`}
-            >
-              {renderMessageContent(message.content)}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={onClose} 
+                className="h-10 w-10 text-white hover:bg-white/20 rounded-full transition-all duration-200"
+              >
+                <X className="w-5 h-5" />
+              </Button>
             </div>
-             {message.role === 'user' && (
-              <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center flex-shrink-0">
-                <User className="w-5 h-5" />
-              </div>
-            )}
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
           </div>
-        ))}
-        {isLoading && (
-           <div className="flex items-start gap-3">
-             <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+        </CardHeader>
+
+        {/* Messages Area */}
+        <CardContent className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-gray-50/50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20">
+          {messages.map((message, index) => (
+            <div key={message.id} className={`flex items-start gap-3 ${message.role === 'user' ? 'justify-end' : ''} animate-in slide-in-from-bottom-4 duration-300`} style={{ animationDelay: `${index * 50}ms` }}>
+              {message.role !== 'user' && (
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <Bot className="w-5 h-5" />
+                </div>
+              )}
+              <div
+                className={`max-w-[85%] p-4 rounded-2xl text-sm shadow-lg transition-all duration-200 hover:shadow-xl ${
+                  message.role === 'user'
+                    ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 text-white shadow-blue-200 dark:shadow-blue-900/50'
+                    : message.role === 'error'
+                    ? 'bg-gradient-to-br from-red-500 via-red-600 to-pink-600 text-white shadow-red-200 dark:shadow-red-900/50'
+                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 shadow-gray-200 dark:shadow-gray-900/50'
+                }`}
+              >
+                {renderMessageContent(message.content)}
+              </div>
+              {message.role === 'user' && (
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <User className="w-5 h-5" />
+                </div>
+              )}
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex items-start gap-3 animate-in slide-in-from-bottom-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg">
                 <Bot className="w-5 h-5" />
               </div>
-              <div className="p-3 rounded-lg bg-muted flex items-center">
-                  <Loader2 className="w-5 h-5 animate-spin"/>
+              <div className="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-blue-500"/>
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
+                <span className="text-sm text-gray-600 dark:text-gray-400">AI is thinking...</span>
               </div>
-           </div>
-        )}
-        <div ref={messagesEndRef} />
-      </CardContent>
-      <CardFooter className="p-4 border-t">
-        <div className="w-full flex items-center gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about the data..."
-            autoComplete="off"
-            disabled={isLoading}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-          />
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isLoading || !input.trim()}
-          >
-            <Send className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </CardContent>
+
+        {/* Enhanced Footer */}
+        <CardFooter className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900/20">
+          {/* Quick prompt buttons */}
+          {messages.length === 1 && (
+            <div className="w-full mb-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-yellow-500" />
+                Quick actions:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {quickPrompts.map((prompt, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setInput(prompt)}
+                    className="text-xs bg-white hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 border-2 border-gray-200 hover:border-blue-300 transition-all duration-200"
+                    disabled={isLoading}
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <div className="w-full flex items-center gap-3">
+            <div className="flex-1 relative">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask me anything about your spreadsheet data..."
+                autoComplete="off"
+                disabled={isLoading}
+                className="pr-12 border-2 border-gray-200 focus:border-blue-400 dark:border-gray-600 dark:focus:border-blue-500 rounded-xl bg-white dark:bg-gray-800 transition-all duration-200"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+              />
+              <MessageCircle className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isLoading || !input.trim()}
+              className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white rounded-xl px-6 shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
