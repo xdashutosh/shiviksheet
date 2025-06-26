@@ -423,7 +423,7 @@ const SpreadSheet = () => {
   const currentSheet = getCurrentSheet();
 
   return (
-    <div className="w-full px-4 mx-auto min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+    <div className="w-full  mx-auto min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
       {/* Header with gradient background */}
       <div className="my-4">
         <div className="text-center ">
@@ -452,7 +452,7 @@ const SpreadSheet = () => {
           <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 p-6 rounded-2xl border border-gray-200 dark:border-gray-600 shadow-inner">
             <div className="flex flex-wrap gap-3 items-center">
               {/* File operations section */}
-              <div className="flex flex-wrap gap-2 items-center p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600">
+              <div className="flex flex-wrap gap-2 items-center  bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-blue-500" />
                   <Input
@@ -488,7 +488,7 @@ const SpreadSheet = () => {
                 >
                   <Bot className="w-4 h-4 mr-2" />
                   AI Chat
-                  {isAiLoading && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+                  {isAiLoading && <Loader2 className="w-4 h-4  animate-spin" />}
                 </Button>
                 {isChatOpen && (
                   <Chatbot 

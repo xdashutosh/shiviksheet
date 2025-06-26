@@ -5,7 +5,6 @@ import { motion, useScroll } from 'framer-motion';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 
 import { ThemeProvider } from '@/components/theme-provider';
-import './index.css';
 import SpreadSheet from './components/pages/SpreadSheet';
 
 
