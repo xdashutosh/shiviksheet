@@ -19,9 +19,9 @@ function App() {
     };
   }, []);
 
-  const defaultTitle = "Navbharat Niwas";
-  const defaultDescription = "Navbharat Niwas: Leading Contruction and Real Estate Company in India, specializing in Plot Sales, Construction, and Real Estate Development. Explore our innovative solutions for your construction needs.";
-  const siteUrl = "https://navbharatniwas.in/";
+  const defaultTitle = "Shivik-Sheet";
+  const defaultDescription = "";
+  const siteUrl = "https://shiviksheet.in/";
 
   return (
     <HelmetProvider>
