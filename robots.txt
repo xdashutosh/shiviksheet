@@ -1,0 +1,32 @@
+# robots.txt for https://procooling.in
+
+User-agent: *
+# Allow all content to be crawled by default for all robots
+Allow: /
+
+# Disallow specific paths if needed.
+# For a typical React SPA, you usually want to allow crawling of JS/CSS assets
+# as Google needs them to render the page.
+# If you had specific admin areas or user-only sections, you'd disallow them:
+# Disallow: /admin/
+# Disallow: /user-profile/ # (if these were server-rendered and not just client-side routes)
+
+# For SPAs, it's generally fine to allow crawlers to access everything needed for rendering.
+# The build assets (like /assets/index-*.js) will be in your /dist folder after build,
+# and served from the root or /assets/. These should be crawlable.
+
+# Point to your sitemap
+Sitemap: https://procooling.in/sitemap.xml
+
+# Specific instructions for Googlebot (can be omitted if '*' is sufficient)
+User-agent: Googlebot
+Allow: /
+
+# Specific instructions for Bingbot (can be omitted if '*' is sufficient)
+User-agent: Bingbot
+Allow: /
+
+# You might want to disallow crawling of specific file types if they are not relevant
+# for search results, though this is less common for SPAs.
+# Example:
+# Disallow: /*.pdf$ # (if you don't want PDFs indexed)

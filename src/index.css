@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* Mobile Locomotive Scroll Fixes */
+/* Add this to your global CSS or import it in your component */
+
+/* Ensure proper mobile scrolling */
+@media (max-width: 768px) {
+  /* Reset locomotive scroll on mobile */
+  html.has-scroll-smooth {
+    overflow: auto !important;
+    position: static !important;
+  }
+
+  body {
+    overflow: auto !important;
+    position: static !important;
+  }
+
+  .has-scroll-smooth [data-scroll-container] {
+    min-height: auto !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  [data-scroll] {
+    transform: none !important;
+    position: relative !important;
+    will-change: auto !important;
+  }
+
+  .c-scrollbar {
+    display: none !important;
+  }
+
+  /* Ensure sections are visible */
+  section[data-scroll-section] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    position: relative !important;
+  }
+
+  /* Fix for scroll container */
+  .scroll-container {
+    height: auto !important;
+    overflow: visible !important;
+    position: relative !important;
+    transform: none !important;
+  }
+
+  /* Ensure all content is accessible */
+  * {
+    transform: translate3d(0, 0, 0) !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  [data-scroll] {
+    transform: none !important;
+  }
+
+  .has-scroll-smooth {
+    overflow: auto !important;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* Ensure images scale properly on mobile */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@layer base {
+  .theme {
+    --animate-marquee: marquee var(--duration) infinite linear;
+    --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  }
+}
+
+
+
+@theme inline {
+  @keyframes marquee {
+  from {
+    transform: translateX(0);
+    }
+  to {
+    transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+  from {
+    transform: translateY(0);
+    }
+  to {
+    transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
