@@ -198,7 +198,7 @@ const SpreadSheet = () => {
         prompt: prompt + "give response in markdown"
       };
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyASHa_pBQxsBHQ8cV9tUcCnGislabaMjQg`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyDaQA_5h-pwCPvSOKBpuGtGtgkit8qUuOc`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
